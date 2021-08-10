@@ -10,11 +10,13 @@ function goToLogin() {
   window.location.href = "http://localhost:5500/pages/signin.html";
 }
 
+function goToEdit() {
+  window.location.href = "http://localhost:5500/pages/edit-page.html";
+}
 /*
 FUNCIONES DE VALIDACIÓN
 */
 function validateFormLogin() {
-  console.log("inside validation");
   const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
 
@@ -23,16 +25,13 @@ function validateFormLogin() {
   const vpassword = password.length >= 8;
   const buttonSubmit = document.getElementById("btn-submit");
   if (vuserName && vpassword) {
-    console.log("valid!");
     buttonSubmit.removeAttribute("disabled");
   } else {
-    console.log("not valid!");
     buttonSubmit.setAttribute("disabled", true);
   }
 }
 
 function validateSignUp() {
-  console.log("inside validation");
   const username = document.getElementById("username2").value;
   const password1 = document.getElementById("password1").value;
   const password2 = document.getElementById("password2").value;
@@ -44,11 +43,21 @@ function validateSignUp() {
   const buttonSubmit = document.getElementById("btn-submit2");
   //validation: password1 needs to match with password2
   if (vuserName && vpassword) {
-    console.log("valid!");
     buttonSubmit.removeAttribute("disabled");
   } else {
-    console.log("not valid!");
     buttonSubmit.setAttribute("disabled", true);
+  }
+}
+
+function validateNoteCreation() {
+  const title = document.getElementById("note-title").value;
+  const description = document.getElementById("note-description").value;
+  const createBtn = document.getElementById("create-note");
+
+  if (title.length > 3 && description.length > 3) {
+    createBtn.removeAttribute("disabled");
+  } else {
+    createBtn.setAttribute("disabled", true);
   }
 }
 
@@ -58,7 +67,7 @@ function createUser() {
   const password = document.getElementById("password1").value;
 
   const newUser = api.newUser.create(username, password);
-  console.log(newUser);
+
   if (newUser) {
     goToLogin();
   } else {
@@ -84,8 +93,8 @@ function closeSession() {
 
   const userId = +urlParams.get("id");
   const user = api.newUser.logout(userId);
-  if(user.active === false){
-      goToLogin()
+  if (user.active === false) {
+    goToLogin();
   }
 }
 
@@ -97,16 +106,61 @@ function onLoadMain() {
 
   const userId = urlParams.get("id");
 
-  console.log("id: ", userId); //this is of type 'string' so we need to cast to number
   //we need to search this user id in our db-local
   const user = api.newUser.getUser(+userId);
-  console.log(user);
+
   if (!user || !user.active) {
     goToLogin();
   }
 
   const title = document.getElementById("username-title");
   title.innerHTML = `${user.username}`;
+
+  drawNotes(user)
+}
+
+function noteCreation() {
+  const title = document.getElementById("note-title").value;
+  const description = document.getElementById("note-description").value;
+
+  const search = window.location.search;
+  const urlParams = new URLSearchParams(search);
+
+  const userId = +urlParams.get("id");
+
+  const newNote = api.newNote.createNote(userId, title, description);
+
+  if (!newNote) {
+    alert("The note was not created!");
+  } else {
+      const user = api.newUser.getUser(userId);
+      drawNotes(user);
+  }
+}
+
+function drawNotes(userId) {
+  //to get the params from the URL
+  const search = window.location.search;
+  const urlParams = new URLSearchParams(search);
+
+  const id = urlParams.get("id");
+  const user = api.newUser.getUser(+id);
+  const container = document.getElementById("container-notes");
+
+  container.innerHTML = "";
+  
+  const notes = user.notes;
+  notes.forEach(function (note) {
+    const template = `
+    <div class="col mt-4">
+        <div class="p-3 card" onclick="goToEdit()">
+            <h2>${note.title}</h2>  
+            <p>${note.description}</p>
+        </div>
+    </div>
+    `;
+    container.innerHTML += template;
+  });
 }
 
 //FUNCTIONS (API)
@@ -151,6 +205,7 @@ const api = {
       } else {
         db = {
           counter: 1,
+          counterNotes: 1,
           users: [],
         };
       }
@@ -179,7 +234,7 @@ const api = {
       }
       const db = JSON.parse(db_local);
       const user = db.users.find((user) => user.id === userId);
-      console.log(user);
+
       return user;
     },
     login: function (username, password) {
@@ -201,22 +256,44 @@ const api = {
 
       return user;
     },
-    logout: function (id) {
+    logout: function (userId) {
       const db_local = localStorage.getItem(usersdb);
       if (!db_local) {
         return null;
       }
       const db = JSON.parse(db_local);
       let user;
-      const index = db.users.findIndex(
-        (user) => user.id === id
-      );
+      const index = db.users.findIndex((user) => user.id === userId);
       user = db.users[index];
       //the user now needs to have the flag active as false
       db.users[index].active = false;
       localStorage.setItem(usersdb, JSON.stringify(db));
 
       return user;
+    },
+  },
+  newNote: {
+    createNote: function (userId, title, description) {
+      const db_local = localStorage.getItem(usersdb);
+      if (!db_local) {
+        return null;
+      }
+      const db = JSON.parse(db_local);
+      const index = db.users.findIndex((user) => user.id === userId);
+      console.log(index);
+
+      const newNote = {
+        id: db.counterNotes,
+        title,
+        description,
+      };
+      console.log(newNote);
+      db.counterNotes++;
+      const userNotes = db.users[index].notes.push(newNote);
+      console.log(userNotes);
+      localStorage.setItem(usersdb, JSON.stringify(db));
+
+      return newNote;
     },
   },
 };

@@ -19,7 +19,7 @@
         <div class="col">
             <div class="row mt-4">
                 <div class="col-auto me-auto">
-                    <button type="button" class="btn btn-success">Create</button>
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createNote">Create</button>
                 </div>
                 <div class="col-auto me-auto">
                   <h4 id="username-title"></h4>
@@ -28,60 +28,53 @@
                     <button type="button" class="btn btn-danger" onclick="closeSession()">X</button>
                 </div>
             </div>
-            <div class="row row-cols-3 row-cols-lg-5 g-3 g-lg-3 mt-4">
-                <div class="col">
-                  <div class="p-3 card ">
+            <div id="container-notes" class="row row-cols-3 row-cols-lg-5 g-3 g-lg-3 mt-4">
+                <!-- <div class="col">
+                  <div class="p-3 card" onclick="goToEdit()">
                      
                         <h2>Lorem ipsum</h2>  
                         <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Corrupti blanditiis enim laborum praesentium autem repudiandae doloremque perspiciatis? Molestias, repellendus porro?</p>
                       
                   </div>
                 </div>
-                <div class="col">
-                  <div class="p-3 card ">
-                    
-                        <h2>Lorem ipsum</h2>  
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Corrupti blanditiis enim laborum praesentium autem repudiandae doloremque perspiciatis? Molestias, repellendus porro?</p>
-                      
-                  </div>
-                </div>
+                 -->
 
-                <div class="col">
-                    <div class="p-3 card ">
-                      
-                          <h2>Lorem ipsum</h2>  
-                          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Corrupti blanditiis enim laborum praesentium autem repudiandae doloremque perspiciatis? Molestias, repellendus porro?</p>
-                    </div>
-                </div>
                 
-                  <div class="col">
-                    <div class="p-3 card ">
-                      
-                          <h2>Lorem ipsum</h2>  
-                          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Corrupti blanditiis enim laborum praesentium autem repudiandae doloremque perspiciatis? Molestias, repellendus porro?</p>
-                      
-                    </div>
-                  </div>
-                  <div class="col">
-                    <div class="p-3 card ">
-                      <div>
-                          <h2>Lorem ipsum</h2>  
-                          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Corrupti blanditiis enim laborum praesentium autem repudiandae doloremque perspiciatis? Molestias, repellendus porro?</p>
-                        </div>
-                    </div>
-                  </div>
-                  <div class="col">
-                    <div class="p-3 card ">
-                      <div>
-                          <h2>Lorem ipsum</h2>  
-                          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Corrupti blanditiis enim laborum praesentium autem repudiandae doloremque perspiciatis? Molestias, repellendus porro?</p>
-                        </div>
-                    </div>
-                  </div>
-               
               </div>
         </div>
+
+        <!--Modal- Create note-->
+    <div class="modal fade" id="createNote" tabindex="-1" aria-labelledby="modalCreateNote" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Create New Note</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="note-title" class="form-label">Title</label>
+              <input onkeyup="validateNoteCreation()" id="note-title" type="text" class="form-control">
+            </div>
+            <div class="mb-3">
+              <label for="note-description" class="form-label">Description</label>
+              <textarea onkeyup="validateNoteCreation()" id="note-description" class="form-control" ></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button onclick="noteCreation()" id="create-note" type="button" class="btn btn-primary" disabled>Save changes</button>
+          </div>
+          </div>
+          
+        </div>
+      </div>
     </div>
+
+    </div>
+    
+    
     <script src="../js/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 </body>
 </html>
