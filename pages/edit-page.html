@@ -14,26 +14,23 @@
     <link rel="stylesheet" href="../css/style.css">
     <title>Edit page</title>
 </head>
-<body>
+<body onload="onLoadEdit()">
     <div class="container">
         <div class="row mt-4">
             <div class="col-2">
-              <button onclick="goToMain()" class="btn btn-secondary">Back</button>
+              <button onclick="goBack()" class="btn btn-secondary">Back</button>
             </div>
             <div class="col-8"></div>
             <div class="col-2">
               <button class="btn btn-primary">Edit</button>
-              <button onclick="" class="btn btn-danger">Delete</button>
+              <button onclick="remove()" class="btn btn-danger">Delete</button>
             </div>
           </div>
         
           <!-- CARD EDITION -->
     <div class="row mt-4">
         <div id="edit-container" class="col">
-  
-          
-  
-          <div class="card notes">
+          <!-- <div class="card notes">
             <div class="card-body">
               <div class="mb-3">
                 <label for="title" class="form-label">Title</label>
@@ -47,7 +44,7 @@
                 <button class="btn btn-primary" type="button">Save</button>
               </div>
             </div>
-          </div> 
+          </div>  -->
           
         </div>
       </div>

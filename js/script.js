@@ -10,9 +10,22 @@ function goToLogin() {
   window.location.href = "http://localhost:5500/pages/signin.html";
 }
 
-function goToEdit() {
-  window.location.href = "http://localhost:5500/pages/edit-page.html";
+function goToEdit(userId, noteId) {
+  window.location.href =
+    "http://localhost:5500/pages/edit-page.html?userId=" +
+    userId +
+    "&noteId=" +
+    noteId;
 }
+
+function goBack() {
+  const search = window.location.search;
+  const urlParams = new URLSearchParams(search);
+
+  const userId = urlParams.get("userId");
+  goToMain(userId);
+}
+
 /*
 FUNCIONES DE VALIDACIÓN
 */
@@ -61,7 +74,7 @@ function validateNoteCreation() {
   }
 }
 
-//FUNCTIONS (Client)
+//CLIENT FUNCTIONS
 function createUser() {
   const username = document.getElementById("username2").value;
   const password = document.getElementById("password1").value;
@@ -99,7 +112,6 @@ function closeSession() {
 }
 
 function onLoadMain() {
-  console.log("onload");
   //to get the params from the URL
   const search = window.location.search;
   const urlParams = new URLSearchParams(search);
@@ -116,7 +128,23 @@ function onLoadMain() {
   const title = document.getElementById("username-title");
   title.innerHTML = `${user.username}`;
 
-  drawNotes(user)
+  drawNotes(user);
+}
+
+function onLoadEdit() {
+  //to get the params from the URL
+  const search = window.location.search;
+  const urlParams = new URLSearchParams(search);
+
+  const userId = urlParams.get("userId");
+  const noteId = urlParams.get("noteId");
+  const user = api.newUser.getUser(+userId);
+
+  user.notes.forEach(function (note) {
+    if (note.id === +noteId) {
+      drawNoteInfo(note);
+    }
+  });
 }
 
 function noteCreation() {
@@ -133,8 +161,8 @@ function noteCreation() {
   if (!newNote) {
     alert("The note was not created!");
   } else {
-      const user = api.newUser.getUser(userId);
-      drawNotes(user);
+    const user = api.newUser.getUser(userId);
+    drawNotes(user);
   }
 }
 
@@ -148,12 +176,12 @@ function drawNotes(userId) {
   const container = document.getElementById("container-notes");
 
   container.innerHTML = "";
-  
+
   const notes = user.notes;
   notes.forEach(function (note) {
     const template = `
     <div class="col mt-4">
-        <div class="p-3 card" onclick="goToEdit()">
+        <div class="p-3 card" onclick="goToEdit(${user.id},${note.id})">
             <h2>${note.title}</h2>  
             <p>${note.description}</p>
         </div>
@@ -161,6 +189,41 @@ function drawNotes(userId) {
     `;
     container.innerHTML += template;
   });
+}
+
+function drawNoteInfo(note) {
+  const container = document.getElementById("edit-container");
+  container.innerHTML = "";
+  const template = `
+    <div class="card notes">
+      <div class="card-body">
+        <div class="mb-3">
+          <label for="title" class="form-label">Title</label>
+          <input type="text" class="form-control" id="title" value="${note.title}">
+        </div>
+        <div class="mb-3">
+          <label for="description" class="form-label">Description</label>
+          <textarea id="description" class="form-control" >${note.description}</textarea>
+      </div>
+      <div class="d-grid gap-2">
+        <button class="btn btn-primary" type="button">Save</button>
+      </div>
+    </div>
+  </div> `;
+  container.innerHTML = template;
+}
+
+function remove() {
+  const search = window.location.search;
+  const urlParams = new URLSearchParams(search);
+
+  const id = urlParams.get("userId");
+  const noteId = urlParams.get("noteId");
+
+  api.newNote.deleteNote(+id, +noteId);
+
+  goToMain(id);
+  drawNotes(id);
 }
 
 //FUNCTIONS (API)
@@ -280,20 +343,35 @@ const api = {
       }
       const db = JSON.parse(db_local);
       const index = db.users.findIndex((user) => user.id === userId);
-      console.log(index);
 
       const newNote = {
         id: db.counterNotes,
         title,
         description,
       };
-      console.log(newNote);
+
       db.counterNotes++;
-      const userNotes = db.users[index].notes.push(newNote);
-      console.log(userNotes);
+      db.users[index].notes.push(newNote);
+
       localStorage.setItem(usersdb, JSON.stringify(db));
 
       return newNote;
+    },
+    deleteNote: function (userId, noteId) {
+      const db_local = localStorage.getItem(usersdb);
+      if (!db_local) {
+        return null;
+      }
+      const db = JSON.parse(db_local);
+      
+      const user = db.users.find((user) => user.id === userId);
+      
+      const userNotes = user.notes;
+      const indexNote = userNotes.findIndex((note) => note.id === noteId);
+
+      userNotes.splice(indexNote, 1);
+      localStorage.setItem(usersdb, JSON.stringify(db));
+      return userNotes;
     },
   },
 };
